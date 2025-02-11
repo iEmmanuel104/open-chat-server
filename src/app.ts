@@ -2,6 +2,8 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import cors from 'cors';
+import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { config } from './configs/config';
 import { createRedisClient } from './configs/redis';
@@ -13,8 +15,8 @@ import { authMiddleware } from './middleware/auth.middleware';
 import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData } from './types/socket';
 import { AiService } from './services/ai.service';
 import { TokenMiningService } from './services/token-mining.service';
-import { createUserRouter } from 'routes/user.routes';
-import { UserService } from 'services/user.service';
+import { createUserRouter } from './routes/user.routes';
+import { UserService } from './services/user.service';
 
 export class App {
     private app: express.Application;
@@ -101,9 +103,19 @@ export class App {
 
     private setupMiddleware() {
         // Add any additional middleware setup here
+        this.app.use(cors({
+            origin: function (origin, callback) {
+                // Allow requests with no origin (like mobile apps or curl requests)
+                if (!origin) return callback(null, true);
+                return callback(null, origin);
+            },
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+        }));        this.app.use(morgan('dev'));
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
-        this.app.use('/api/users', createUserRouter(this.services.userService));
+        this.app.use('/api/v0/users', createUserRouter(this.services.userService));
     }
 
     private setupSocketIO() {

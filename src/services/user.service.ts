@@ -21,7 +21,10 @@ export class UserService {
             // Find or create user
             let user = await User.findOne({ address: address.toLowerCase() });
 
+            console.log('User-Found:', user);
+
             if (!user) {
+                console.log('Creating new user:', address);
                 user = await User.create({
                     address: address.toLowerCase(),
                     tokenBalance: 0,

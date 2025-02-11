@@ -5,68 +5,56 @@ import { UserService } from '../services/user.service';
 export class UserController {
     constructor(private userService: UserService) { }
 
-    public initializeUser(req: Request, res: Response): Promise<void> {
-        return new Promise<void>(async (resolve) => {
-            try {
-                const { address } = req.body;
+    public initializeUser = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { address } = req.body;
 
-                if (!address) {
-                    res.status(400).json({ error: 'Address is required' });
-                    return resolve();
-                }
-
-                const user = await this.userService.initializeUser(address);
-                res.json(user);
-                resolve();
-            } catch (error) {
-                console.error('Error in user initialization:', error);
-                res.status(500).json({ error: 'Failed to initialize user' });
-                resolve();
+            if (!address) {
+                res.status(400).json({ error: 'Address is required' });
+                return;
             }
-        });
-    }
 
-    public getUserByAddress(req: Request, res: Response): Promise<void> {
-        return new Promise<void>(async (resolve) => {
-            try {
-                const { address } = req.params;
-                const user = await this.userService.getUserByAddress(address);
+            const user = await this.userService.initializeUser(address);
+            res.json(user);
+        } catch (error) {
+            console.error('Error in user initialization:', error);
+            res.status(500).json({ error: 'Failed to initialize user' });
+        }
+    };
 
-                if (!user) {
-                    res.status(404).json({ error: 'User not found' });
-                    return resolve();
-                }
+    public getUserByAddress = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { address } = req.params;
+            const user = await this.userService.getUserByAddress(address);
 
-                res.json(user);
-                resolve();
-            } catch (error) {
-                console.error('Error fetching user:', error);
-                res.status(500).json({ error: 'Failed to fetch user' });
-                resolve();
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+                return;
             }
-        });
-    }
 
-    public updateUser(req: Request, res: Response): Promise<void> {
-        return new Promise<void>(async (resolve) => {
-            try {
-                const { address } = req.params;
-                const updateData = req.body;
+            res.json(user);
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            res.status(500).json({ error: 'Failed to fetch user' });
+        }
+    };
 
-                const user = await this.userService.updateUser(address, updateData);
+    public updateUser = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { address } = req.params;
+            const updateData = req.body;
 
-                if (!user) {
-                    res.status(404).json({ error: 'User not found' });
-                    return resolve();
-                }
+            const user = await this.userService.updateUser(address, updateData);
 
-                res.json(user);
-                resolve();
-            } catch (error) {
-                console.error('Error updating user:', error);
-                res.status(500).json({ error: 'Failed to update user' });
-                resolve();
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+                return;
             }
-        });
-    }
+
+            res.json(user);
+        } catch (error) {
+            console.error('Error updating user:', error);
+            res.status(500).json({ error: 'Failed to update user' });
+        }
+    };
 }
