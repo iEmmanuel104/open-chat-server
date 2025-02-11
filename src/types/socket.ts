@@ -23,6 +23,9 @@ export interface ClientToServerEvents {
     getGroups: (callback: (groups: any[]) => void) => void;
     createGroup: (data: { name: string; description?: string }, callback: (group: any) => void) => void;
     loadMessages: (data: { groupId: string; before?: string }, callback: (messages: MessageType[]) => void) => void;
+    searchGroups: (query: string, callback: (groups: any[]) => void) => void;
+    getGroupDetails: (groupId: string, callback: (group: any | null) => void) => void;
+    getGroupMembers: (groupId: string, callback: (members: any[]) => void) => void;
 }
 
 export interface InterServerEvents {

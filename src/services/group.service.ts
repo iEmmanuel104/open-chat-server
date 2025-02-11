@@ -42,4 +42,32 @@ export class GroupService {
         }
         return group;
     }
+
+    async searchGroups(query: string) {
+        const searchRegex = new RegExp(query, 'i');
+        return await Group.find({
+            $or: [
+                { name: searchRegex },
+                { description: searchRegex }
+            ],
+            isPrivate: false
+        })
+            .populate('owner', 'address')
+            .populate('members', 'address')
+            .sort({ members: -1, createdAt: -1 })
+            .limit(20);
+    }
+
+    async getGroupDetails(groupId: string) {
+        return await Group.findById(groupId)
+            .populate('owner', 'address')
+            .populate('members', 'address')
+            .populate('topContributors.user', 'address');
+    }
+
+    async getGroupMembers(groupId: string) {
+        const group = await Group.findById(groupId)
+            .populate('members', 'address tokenBalance reputation');
+        return group?.members || [];
+    }
 }

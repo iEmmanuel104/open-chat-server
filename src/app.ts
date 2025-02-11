@@ -13,6 +13,8 @@ import { authMiddleware } from './middleware/auth.middleware';
 import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData } from './types/socket';
 import { AiService } from './services/ai.service';
 import { TokenMiningService } from './services/token-mining.service';
+import { createUserRouter } from 'routes/user.routes';
+import { UserService } from 'services/user.service';
 
 export class App {
     private app: express.Application;
@@ -26,6 +28,7 @@ export class App {
         tokenMiningService: TokenMiningService;
         groupService: GroupService;
         chatService: ChatService;
+        userService: UserService;
     };
 
     constructor() {
@@ -73,12 +76,15 @@ export class App {
             redisService
         );
 
+        const userService = new UserService(redisService);
+
         return {
             redisService,
             aiService,
             tokenMiningService,
             groupService,
-            chatService
+            chatService,
+            userService,
         };
     }
 
@@ -97,6 +103,7 @@ export class App {
         // Add any additional middleware setup here
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
+        this.app.use('/api/users', createUserRouter(this.services.userService));
     }
 
     private setupSocketIO() {

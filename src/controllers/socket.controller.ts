@@ -32,28 +32,6 @@ export class SocketController {
         this.setupEventHandlers(socket);
     }
 
-    private async handleMessage(socket: CustomSocket, data: { groupId: string; message: string }) {
-        try {
-            const user = socket.data.user;
-            const chat = await this.chatService.createMessage(
-                data.message,
-                user._id.toString(),
-                data.groupId
-            );
-
-            // Emit message with token mining info
-            this.io.to(data.groupId).emit('message', {
-                ...chat.toObject(),
-                tokensMined: chat.tokensMined,
-                contentQuality: chat.contentQuality
-            });
-
-        } catch (error) {
-            console.error('Error handling message:', error);
-            socket.emit('error', 'Failed to process message');
-        }
-    }
-
     private isRateLimited(userId: string): boolean {
         const now = Date.now();
         const userMessages = this.messageRateLimit.get(userId) || 0;
@@ -136,6 +114,36 @@ export class SocketController {
             } catch (error) {
                 console.error('Error sending message:', error);
                 socket.emit('error', 'Failed to send message');
+            }
+        });
+
+        socket.on('searchGroups', async (query: string, callback) => {
+            try {
+                const groups = await this.groupService.searchGroups(query);
+                callback(groups);
+            } catch (error) {
+                console.error('Error searching groups:', error);
+                callback([]);
+            }
+        });
+
+        socket.on('getGroupDetails', async (groupId: string, callback) => {
+            try {
+                const group = await this.groupService.getGroupDetails(groupId);
+                callback(group);
+            } catch (error) {
+                console.error('Error fetching group details:', error);
+                callback(null);
+            }
+        });
+
+        socket.on('getGroupMembers', async (groupId: string, callback) => {
+            try {
+                const members = await this.groupService.getGroupMembers(groupId);
+                callback(members);
+            } catch (error) {
+                console.error('Error fetching group members:', error);
+                callback([]);
             }
         });
 
