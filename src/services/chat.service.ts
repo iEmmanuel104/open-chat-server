@@ -74,7 +74,8 @@ export class ChatService {
                 sentiment: analysis.sentiment,
                 topics: analysis.topics,
                 contentQuality: analysis.contentQuality,
-                tokensMined: tokensEarned
+                tokensMined: tokensEarned,
+                response: analysis.response || '' 
             });
 
             await Promise.all([
@@ -90,7 +91,6 @@ export class ChatService {
             callback(error);
         }
     }
-
     async createMessage(message: string, userId: string, groupId: string): Promise<any> {
         return new Promise((resolve, reject) => {
             this.messageQueue.push({
@@ -135,7 +135,11 @@ export class ChatService {
             sentiment: msg.sentiment || 'neutral',
             topics: msg.topics || [],
             contentQuality: msg.contentQuality || 0,
-            tokensMined: msg.tokensMined || 0
+            tokensMined: msg.tokensMined || 0,
+            isAiGenerated: msg.isAiGenerated || false,
+            engagementScore: msg.engagementScore || 0,
+            isDeleted: msg.isDeleted || false,
+            response: msg.response || ''
         }));
 
         await this.redisService.set(

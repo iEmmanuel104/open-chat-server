@@ -49,6 +49,10 @@ const ChatSchema = new Schema(
         isDeleted: {
             type: Boolean,
             default: false
+        },
+        response: {
+            type: String,
+            default: ''
         }
     },
     { timestamps: true }

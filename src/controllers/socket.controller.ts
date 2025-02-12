@@ -29,6 +29,8 @@ export class SocketController {
             connectionId: socket.id
         });
 
+        console.log(`User ${user.address} connected`);
+
         this.setupEventHandlers(socket);
     }
 
@@ -61,7 +63,6 @@ export class SocketController {
             }
         });
         
-
         socket.on('createGroup', async (data, callback) => {
             try {
                 const group = await this.groupService.createGroup(data.name, data.description, user._id);
@@ -77,6 +78,7 @@ export class SocketController {
                 await this.redisService.addUserToGroup(groupId, socket.id, user.address);
                 await this.groupService.addMemberToGroup(groupId, user._id);
                 await socket.join(groupId);
+                console.log(`User ${user.address} joined group ${groupId}`);
             } catch (error) {
                 console.error('Error joining group:', error);
                 socket.emit('error', 'Failed to join group');

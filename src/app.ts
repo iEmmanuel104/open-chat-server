@@ -42,7 +42,10 @@ export class App {
                 methods: ["*"],
                 credentials: true,
                 allowedHeaders: ["*"]
-            }
+            },
+            //  transports: ['websocket', 'polling'],
+            // pingTimeout: 60000,
+            // pingInterval: 25000,
         });
 
         // Initialize Redis client
